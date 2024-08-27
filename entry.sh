@@ -7,13 +7,13 @@ GROUP=app
 
 if [[ -z "${DOCKER_UID}" ]]; then
 	echo 'You need to set DOCKER_UID before you run this container'
-	echo 'See https://github.com/mbarlocker/docker-typescript-dev for more details'
+	echo 'See https://github.com/mbarlocker/docker-dev for more details'
 	exit 1
 fi
 
 if [[ -z "${DOCKER_GID}" ]]; then
 	echo 'You need to set DOCKER_GID before you run this container'
-	echo 'See https://github.com/mbarlocker/docker-typescript-dev for more details'
+	echo 'See https://github.com/mbarlocker/docker-dev for more details'
 	exit 1
 fi
 
