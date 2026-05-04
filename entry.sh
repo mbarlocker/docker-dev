@@ -30,8 +30,8 @@ if [[ "${BASE_GID}" != "${DOCKER_GID}" ]]; then
 	find /home -group "${BASE_GID}" -exec chgrp -h "${GROUP}" {} \;
 fi
 
-( cd / && run-parts /startup/root )
+( cd / && run-parts --exit-on-error /startup/root )
 
 exec su -l -g "${GROUP}" "${USER}" <<EOF
-( cd / && run-parts /startup/app )
+( cd / && run-parts --exit-on-error /startup/app )
 EOF
