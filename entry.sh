@@ -1,37 +1,35 @@
 #!/bin/bash
+set -Eeuo pipefail
 
-trap 'exit 0' 1 2 3 6 15
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 131' QUIT
+trap 'exit 143' TERM
 
-USER=app
-GROUP=app
+APP_USER=app
+APP_GROUP=app
 
-if [[ -z "${DOCKER_UID}" ]]; then
-	echo 'You need to set DOCKER_UID before you run this container'
-	echo 'See https://github.com/mbarlocker/docker-dev for more details'
-	exit 1
-fi
+: "${DOCKER_UID:?You need to set DOCKER_UID before you run this container}"
+: "${DOCKER_GID:?You need to set DOCKER_GID before you run this container}"
 
-if [[ -z "${DOCKER_GID}" ]]; then
-	echo 'You need to set DOCKER_GID before you run this container'
-	echo 'See https://github.com/mbarlocker/docker-dev for more details'
-	exit 1
-fi
+[[ "${DOCKER_UID" =~ ^[0-9]+$ ]] || { echo "DOCKER_UID must be numeric"; exit 1; }
+[[ "${DOCKER_GID" =~ ^[0-9]+$ ]] || { echo "DOCKER_GID must be numeric"; exit 1; }
 
-BASE_UID="$(id -u "${USER}" 2>/dev/null)"
-BASE_GID="$(getent group "${GROUP}" 2>/dev/null | awk -F':' '{ print $3; }')"
+BASE_UID="$(id -u "${APP_USER}")"
+BASE_GID="$(getent group "${APP_GROUP}" | awk -F: '{print $3}')"
 
 if [[ "${BASE_UID}" != "${DOCKER_UID}" ]]; then
-	usermod -u "${DOCKER_UID}" "${USER}"
-	find /home -user "${BASE_UID}" -exec chown -h "${USER}" {} \;
+	usermod -u "${DOCKER_UID}" "${APP_USER}"
+	find /home -xdev -uid "${BASE_UID}" -exec chown -h "${APP_USER}" {} +
 fi
 
 if [[ "${BASE_GID}" != "${DOCKER_GID}" ]]; then
-	groupmod -g "${DOCKER_GID}" "${GROUP}"
-	find /home -group "${BASE_GID}" -exec chgrp -h "${GROUP}" {} \;
+	groupmod -g "${DOCKER_GID}" "${APP_GROUP}"
+	find /home -xdev -gid "${BASE_GID}" -exec chgrp -h "${APP_GROUP}" {} +
 fi
 
-( cd / && run-parts --exit-on-error /startup/root )
+if [[ -d /startup/root ]]; then
+	( cd / && run-parts --exit-on-error /startup/root )
+fi
 
-exec su -l -g "${GROUP}" "${USER}" <<EOF
-( cd / && run-parts --exit-on-error /startup/app )
-EOF
+exec su -l -g "${APP_GROUP}" "${APP_USER}" -c 'cd / && run-parts --exit-on-error /startup/app'
