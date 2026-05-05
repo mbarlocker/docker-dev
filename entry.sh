@@ -12,8 +12,8 @@ APP_GROUP=app
 : "${DOCKER_UID:?You need to set DOCKER_UID before you run this container}"
 : "${DOCKER_GID:?You need to set DOCKER_GID before you run this container}"
 
-[[ "${DOCKER_UID" =~ ^[0-9]+$ ]] || { echo "DOCKER_UID must be numeric"; exit 1; }
-[[ "${DOCKER_GID" =~ ^[0-9]+$ ]] || { echo "DOCKER_GID must be numeric"; exit 1; }
+[[ "${DOCKER_UID}" =~ ^[0-9]+$ ]] || { echo "DOCKER_UID must be numeric"; exit 1; }
+[[ "${DOCKER_GID}" =~ ^[0-9]+$ ]] || { echo "DOCKER_GID must be numeric"; exit 1; }
 
 BASE_UID="$(id -u "${APP_USER}")"
 BASE_GID="$(getent group "${APP_GROUP}" | awk -F: '{print $3}')"
