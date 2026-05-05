@@ -20,12 +20,12 @@ BASE_GID="$(getent group "${APP_GROUP}" | awk -F: '{print $3}')"
 
 if [[ "${BASE_UID}" != "${DOCKER_UID}" ]]; then
 	usermod -u "${DOCKER_UID}" "${APP_USER}"
-	find /home -xdev -uid "${BASE_UID}" -exec chown -h "${APP_USER}" {} +
+	find /home -uid "${BASE_UID}" -exec chown -h "${APP_USER}" {} +
 fi
 
 if [[ "${BASE_GID}" != "${DOCKER_GID}" ]]; then
 	groupmod -g "${DOCKER_GID}" "${APP_GROUP}"
-	find /home -xdev -gid "${BASE_GID}" -exec chgrp -h "${APP_GROUP}" {} +
+	find /home -gid "${BASE_GID}" -exec chgrp -h "${APP_GROUP}" {} +
 fi
 
 if [[ -d /startup/root ]]; then
