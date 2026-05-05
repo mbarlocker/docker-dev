@@ -13,5 +13,6 @@ WORKDIR /app
 VOLUME ["/app"]
 
 COPY entry.sh /
+RUN bash -n /entry.sh
 
 ENTRYPOINT ["/entry.sh"]
